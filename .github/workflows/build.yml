@@ -32,6 +32,6 @@ jobs:
 
       - name: Node-App
         run: |
-          docker build
+          docker build .
 
 
