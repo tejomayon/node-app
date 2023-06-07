@@ -1,0 +1,37 @@
+name: Build and Dockerize
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js environment
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Set up Vault environment variables
+        run: |
+          echo "VAULT_ADDR=https://vault-public-vault-18780a17.5500532d.z1.hashicorp.cloud:8200" >> $GITHUB_ENV
+          echo "VAULT_TOKEN=hvs.CAESIO5bOZEUIt6a1iexmczkbGl6q68vLhM3s0TDb2J8CVcYGicKImh2cy5YNmRVWjFXMnEwbFVtRHRZUmZXZ3ZEdGsuTUhtVmQQlU4" >> $GITHUB_ENV
+
+      - name: Retrieve secret from Vault
+        run: |
+          export SECRET_VALUE=$(curl -H "X-Vault-Token: ${{ secrets.VAULT_TOKEN }}" \
+            ${{ secrets.VAULT_ADDR }}/v1/secret/data/demo-secret \
+            | jq -r '.data.data.value')
+          echo "SECRET_VALUE=$SECRET_VALUE" >> $GITHUB_ENV
+
+      - name: Node-App
+        run: |
+          docker build
+
+
